@@ -19,9 +19,8 @@ namespace Faker.MainApp
         }
 
         public Dictionary<string, IGenerator> LoadPlugins(Faker faker)
-        {
-            if (Generators == null) 
-                Generators = new Dictionary<string, IGenerator>();
+        { 
+            Generators ??= new Dictionary<string, IGenerator>();
             
             Generators.Clear();
 
