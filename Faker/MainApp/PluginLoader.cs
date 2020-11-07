@@ -20,7 +20,9 @@ namespace Faker.MainApp
 
         public Dictionary<string, IGenerator> LoadPlugins(Faker faker)
         {
-            Generators ??= new Dictionary<string, IGenerator>();
+            if (Generators == null) 
+                Generators = new Dictionary<string, IGenerator>();
+            
             Generators.Clear();
 
             var pluginsPaths = Directory.GetFiles(_pluginsPath, "*.dll");
