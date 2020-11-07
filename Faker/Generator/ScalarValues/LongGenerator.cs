@@ -12,7 +12,7 @@
             long result = Random.Next(int.MinValue >> 32, int.MaxValue >> 32);
             
             result = (result << 32);
-            result = result | Random.Next(int.MinValue, int.MaxValue);
+            result |= Random.Next(int.MinValue, int.MaxValue);
             
             return result;
             

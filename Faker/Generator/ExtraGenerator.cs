@@ -10,7 +10,7 @@ namespace Faker.Generator
             return 101;
         }
 
-        public string GetType()
+        public new string GetType()
         {
             return typeof(string).ToString(); 
         }

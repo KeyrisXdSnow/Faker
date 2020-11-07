@@ -14,7 +14,7 @@ namespace FakerTest.DTO
         
         public string sdf;
         public int AAA = 123;
-        public object ewr = new Oid();
+        public object ewr = new AesManaged();
         
         
         // init in constructor 

@@ -33,11 +33,18 @@ namespace Faker.MainApp
                 var types = asm.GetTypes().Where(t => t.
                     GetInterfaces().Any(i => i.FullName == typeof(IGenerator).FullName));
 
-                //заполняем экземплярами полученных типов коллекцию плагинов
                 foreach (var type in types)
                 {
-                    var plugin = (IGenerator) Activator.CreateInstance(type); 
-                    Generators.Add(plugin.GetType().ToString(), plugin);
+                    //заполняем экземплярами полученных типов коллекцию плагинов
+                    try
+                    {
+                        var plugin = (IGenerator) Activator.CreateInstance(type);
+                        Generators.Add(plugin.GetType().ToString(), plugin);
+                    }
+                    catch (FileNotFoundException e)
+                    {
+                        Console.WriteLine(e.Message);
+                    }
                 }
             }
 

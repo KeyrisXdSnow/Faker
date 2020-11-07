@@ -31,7 +31,7 @@ namespace Faker
 
         private void AutoLoadGenerators()
         {
-            var pluginsLoader = new PluginLoader("E:\\Sharaga\\SPP\\Laba2\\Faker\\Faker\\Plugins");
+            var pluginsLoader = new PluginLoader("E:\\Sharaga\\SPP\\Faker\\Faker\\Plugins");
             _generators = pluginsLoader.LoadPlugins(this);
         }
         
@@ -58,8 +58,17 @@ namespace Faker
                 
                 if (type.IsGenericType)
                 {
-                    return _generators.ContainsKey(Regex.Replace(type.Name.ToString(), "`.+$", "")) ? 
-                        _generators[Regex.Replace(type.Name.ToString(), "`.+$", "")].Generate(new GeneratorContext(this, type)) : CreateObject(type);
+                    try
+                    {
+                        return _generators.ContainsKey(Regex.Replace(type.Name.ToString(), "`.+$", ""))
+                            ? _generators[Regex.Replace(type.Name.ToString(), "`.+$", "")]
+                                .Generate(new GeneratorContext(this, type))
+                            : CreateObject(type);
+                    }
+                    catch (Exception)
+                    {
+                        return null;
+                    }
                 }
                 else 
                     return _generators.ContainsKey(type.ToString()) ? _generators[type.ToString()].Generate(new GeneratorContext(this, type)) : CreateObject(type);
@@ -146,27 +155,34 @@ namespace Faker
                 if ( (defaultValue == null && value != null) ) continue;
                 if (value != null && !defaultValue.Equals(value)) continue;
 
-                if (field.FieldType.IsPrimitive ^ (field.FieldType == typeof(string) & field.GetValue(obj) != null) )
+                try
                 {
-                   if ( field.FieldType == typeof(string) && !field.GetValue(obj).Equals("") ) continue;
-                    
-                    var defValue = Activator.CreateInstance(field.FieldType);
-                    var qe = field.GetValue(obj); 
-                    
-                    if (defValue.Equals(qe))
+                    if (field.FieldType.IsPrimitive ^ (field.FieldType == typeof(string) & field.GetValue(obj) != null))
                     {
-                        var generator = _config.GetGeneratorByName(field.Name, obj.GetType());
-                        
-                        if (generator != null)
-                            field.SetValue(obj, generator.Generate(new GeneratorContext(this,field.FieldType)));
-                        else
-                            field.SetValue(obj, _generators[field.FieldType.ToString()]
-                                ?.Generate(new GeneratorContext(this, field.FieldType)));
+                        if (field.FieldType == typeof(string) && !field.GetValue(obj).Equals("")) continue;
+
+                        var defValue = Activator.CreateInstance(field.FieldType);
+                        var qe = field.GetValue(obj);
+
+                        if (defValue.Equals(qe))
+                        {
+                            var generator = _config.GetGeneratorByName(field.Name, obj.GetType());
+
+                            if (generator != null)
+                                field.SetValue(obj, generator.Generate(new GeneratorContext(this, field.FieldType)));
+                            else
+                                field.SetValue(obj, _generators[field.FieldType.ToString()]
+                                    ?.Generate(new GeneratorContext(this, field.FieldType)));
+                        }
                     }
+                    else
+                        field.SetValue(obj, Create(field.FieldType));
                 }
-                else  
-                    field.SetValue(obj,Create(field.FieldType));
-                
+                catch (Exception)
+                {
+                    // ignored
+                }
+
             }
             
         }
@@ -193,12 +209,22 @@ namespace Faker
                     
                     
                     var generator = _config.GetGeneratorByName(property.Name, obj.GetType());
-                        
-                    if (generator != null)
-                        property.SetValue(obj,generator.Generate(new GeneratorContext(this, property.PropertyType)) );
-                    else
-                        property.SetValue(obj,_generators[property.PropertyType.ToString()]?.Generate(new GeneratorContext(this, property.PropertyType)) );
-                    
+
+                    try
+                    {
+                        if (generator != null)
+                            property.SetValue(obj,
+                                generator.Generate(new GeneratorContext(this, property.PropertyType)));
+                        else
+                            property.SetValue(obj,
+                                _generators[property.PropertyType.ToString()]
+                                    ?.Generate(new GeneratorContext(this, property.PropertyType)));
+                    }
+                    catch (Exception)
+                    {
+                        // ignored
+                    }
+
                 } else Create(property.PropertyType);
             }
         }

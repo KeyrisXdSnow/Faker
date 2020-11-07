@@ -12,7 +12,7 @@ namespace Faker.MainApp
         {
 
             Faker faker = new Faker();
-            
+
             var foo = faker.Create<Foo>();
            
         }
