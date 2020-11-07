@@ -38,6 +38,9 @@
         <Reference Include="System.Xml" />
     </ItemGroup>
     <ItemGroup>
+        <Compile Include="DTO\A.cs" />
+        <Compile Include="DTO\Boo.cs" />
+        <Compile Include="DTO\Foo.cs" />
         <Compile Include="Faker.cs" />
         <Compile Include="FakerConfig.cs" />
         <Compile Include="MainApp\CycleDependencyException.cs" />
